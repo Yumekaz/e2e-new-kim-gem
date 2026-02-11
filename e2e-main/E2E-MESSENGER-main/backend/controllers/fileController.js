@@ -39,6 +39,11 @@ class FileController {
       if (!roomService.isMember(roomId, req.user.username)) {
         throw new AuthorizationError('Not a room member');
       }
+      if (encrypted === 'true') {
+        fileService.validateEncryptedUploadPayload(req.body, req.file.size);
+      } else {
+        fileService.validateUploadedFileContent(req.file);
+      }
 
       const attachment = fileService.saveFileMetadata(
         roomId,
@@ -99,7 +104,7 @@ class FileController {
       // If encrypted, sending as application/octet-stream is correct
       // If plain, use stored mimetype
       res.setHeader('Content-Type', attachment.mimetype);
-      res.setHeader('Content-Disposition', `inline; filename="${attachment.filename}"`);
+      res.setHeader('Content-Disposition', `attachment; filename="${attachment.filename}"`);
 
       const stream = fs.createReadStream(absolutePath);
       stream.on('error', (err) => {
@@ -107,6 +112,29 @@ class FileController {
         if (!res.headersSent) res.status(500).json({ message: 'Error streaming file' });
       });
       stream.pipe(res);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/files/:id/url
+   * Refresh a signed download URL
+   */
+  async getFileUrl(req, res, next) {
+    try {
+      const attachment = fileService.getAttachment(parseInt(req.params.id, 10));
+
+      if (!roomService.isMember(attachment.room_id, req.user.username)) {
+        throw new AuthorizationError('Not a room member');
+      }
+
+      res.json({
+        attachment: {
+          id: attachment.id,
+          url: fileService.createSignedDownloadUrl(attachment.id),
+        },
+      });
     } catch (error) {
       next(error);
     }

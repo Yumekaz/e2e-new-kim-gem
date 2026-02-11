@@ -480,6 +480,21 @@ function RoomPage({
     socket.emit('typing', { roomId });
   };
 
+  const handleFileUploaded = async (attachment: Attachment): Promise<void> => {
+    try {
+      const { encryptedData, iv } = await encryption.encrypt('Attachment');
+      socket.emit('send-encrypted-message', {
+        roomId,
+        encryptedData,
+        iv,
+        senderUsername: username,
+        attachmentId: attachment.id,
+      });
+    } catch (error) {
+      console.error('Failed to send attachment message:', error);
+    }
+  };
+
   const isSystemMessage = (msg: Message): msg is SystemMessage => {
     return (msg as SystemMessage).type === 'system';
   };
@@ -581,7 +596,7 @@ function RoomPage({
           <div className="flex-shrink-0">
             <FileUpload
               roomId={roomId}
-              onFileUploaded={() => {}}
+              onFileUploaded={handleFileUploaded}
               disabled={uploadingFile}
               encryptFile={async (file) => encryption.encryptFile(file)}
             />

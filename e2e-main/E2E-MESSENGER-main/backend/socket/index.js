@@ -9,6 +9,7 @@ const { authenticateSocket } = require('../middleware/auth');
 const config = require('../config');
 const authService = require('../services/authService');
 const { socketLimiter } = require('../middleware/rateLimiter');
+const { getRoomMemberSnapshot } = require('../services/socketDataService');
 const createMessageHandler = require('./handlers/messageHandler');
 const createRoomHandler = require('./handlers/roomHandler');
 
@@ -147,17 +148,7 @@ function setupSocketHandlers(io) {
         db.removeRoomMember(roomId, user.username);
         io.to(roomId).emit('member-left', { username: user.username });
 
-        const dbMembers = db.getRoomMembers(roomId);
-        const memberKeys = {};
-        const memberList = [];
-
-        for (const member of dbMembers) {
-          memberList.push(member.username);
-          const memberUser = db.getUserByUsername(member.username);
-          if (memberUser?.public_key) {
-            memberKeys[member.username] = memberUser.public_key;
-          }
-        }
+        const { members: memberList, memberKeys } = getRoomMemberSnapshot(roomId);
 
         io.to(roomId).emit('members-update', {
           members: memberList,

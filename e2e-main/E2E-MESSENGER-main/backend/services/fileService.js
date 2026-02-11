@@ -70,6 +70,59 @@ class FileService {
     cb(new ValidationError(`Invalid file type. Allowed: ${config.upload.allowedExtensions}`));
   }
 
+  validateEncryptedUploadPayload(payload, uploadedFileSize) {
+    const originalName = (payload.originalName || '').trim();
+    const originalType = (payload.originalType || '').trim();
+    const originalSize = parseInt(payload.originalSize, 10);
+
+    if (!originalName || originalName.length > 255) {
+      throw new ValidationError('Invalid encrypted file name');
+    }
+    if (!originalType || !config.upload.allowedMimeTypes.includes(originalType)) {
+      throw new ValidationError('Invalid encrypted original MIME type');
+    }
+    if (!Number.isFinite(originalSize) || originalSize <= 0 || originalSize > config.upload.maxFileSize) {
+      throw new ValidationError('Invalid encrypted original file size');
+    }
+    if (uploadedFileSize <= 0 || uploadedFileSize > config.upload.maxFileSize) {
+      throw new ValidationError('Invalid uploaded encrypted payload size');
+    }
+  }
+
+  validateUploadedFileContent(file) {
+    const absolutePath = path.resolve(config.upload.directory, file.filename);
+    const header = Buffer.alloc(16);
+    const fd = fs.openSync(absolutePath, 'r');
+    try {
+      fs.readSync(fd, header, 0, header.length, 0);
+    } finally {
+      fs.closeSync(fd);
+    }
+
+    const isJpeg = header[0] === 0xff && header[1] === 0xd8;
+    const isPng = header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e && header[3] === 0x47;
+    const isGif = header[0] === 0x47 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x38;
+    const isWebp = header[0] === 0x52 && header[1] === 0x49 && header[2] === 0x46 && header[3] === 0x46
+      && header[8] === 0x57 && header[9] === 0x45 && header[10] === 0x42 && header[11] === 0x50;
+    const isPdf = header[0] === 0x25 && header[1] === 0x50 && header[2] === 0x44 && header[3] === 0x46;
+
+    if (file.mimetype === 'image/jpeg' && !isJpeg) {
+      throw new ValidationError('JPEG signature mismatch');
+    }
+    if (file.mimetype === 'image/png' && !isPng) {
+      throw new ValidationError('PNG signature mismatch');
+    }
+    if (file.mimetype === 'image/gif' && !isGif) {
+      throw new ValidationError('GIF signature mismatch');
+    }
+    if (file.mimetype === 'image/webp' && !isWebp) {
+      throw new ValidationError('WEBP signature mismatch');
+    }
+    if (file.mimetype === 'application/pdf' && !isPdf) {
+      throw new ValidationError('PDF signature mismatch');
+    }
+  }
+
   /**
    * Get multer middleware for single file upload
    */
@@ -142,6 +195,10 @@ class FileService {
 
   getRoomAttachmentsPage(roomId, page, pageSize) {
     return db.getRoomAttachmentsPage(roomId, page, pageSize);
+  }
+
+  createSignedDownloadUrl(attachmentId) {
+    return urlSigner.sign(`/api/files/${attachmentId}`);
   }
 
   /**

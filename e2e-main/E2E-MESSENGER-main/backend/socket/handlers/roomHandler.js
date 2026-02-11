@@ -6,7 +6,10 @@
 const crypto = require('crypto');
 const db = require('../../database/db');
 const logger = require('../../utils/logger');
-const urlSigner = require('../../utils/urlSigner');
+const {
+  mapRoomMessageRow,
+  getRoomMemberSnapshot,
+} = require('../../services/socketDataService');
 
 function createRoomHandler(io, socket, state) {
   const { users, usernames, rooms, joinRequests, socketToRooms } = state;
@@ -166,18 +169,7 @@ function createRoomHandler(io, socket, state) {
       requesterSocket.join(request.roomId);
       socketToRooms.get(request.socketId)?.add(request.roomId);
 
-      // Get all room members from database to build memberKeys
-      const dbMembers = db.getRoomMembers(request.roomId);
-      const memberKeys = {};
-      const memberList = [];
-
-      for (const member of dbMembers) {
-        memberList.push(member.username);
-        const memberUser = db.getUserByUsername(member.username);
-        if (memberUser?.public_key) {
-          memberKeys[member.username] = memberUser.public_key;
-        }
-      }
+      const { members: memberList, memberKeys } = getRoomMemberSnapshot(request.roomId);
 
       requesterSocket.emit('join-approved', {
         roomId: request.roomId,
@@ -266,72 +258,13 @@ function createRoomHandler(io, socket, state) {
     socket.join(roomId);
     socketToRooms.get(socket.id)?.add(roomId);
 
-    // Get room members and their public keys from database
-    const dbMembers = db.getRoomMembers(roomId);
-    const memberKeys = {};
-    const memberList = [];
-
-    for (const member of dbMembers) {
-      memberList.push(member.username);
-      const memberUser = db.getUserByUsername(member.username);
-      if (memberUser?.public_key) {
-        memberKeys[member.username] = memberUser.public_key;
-      }
-    }
+    const { members: memberList, memberKeys } = getRoomMemberSnapshot(roomId);
 
     // Get messages from database
     const dbMessages = db.getRoomMessages(roomId);
     logger.debug('Loading room messages', { roomId, count: dbMessages.length });
     
-    const encryptedMessages = dbMessages.map(msg => {
-      // Parse SQLite datetime - it's stored as local time string 'YYYY-MM-DD HH:MM:SS'
-      const createdAt = msg.created_at;
-      let timestamp;
-      if (typeof createdAt === 'string') {
-        // Parse as local time by replacing space with T (no Z suffix)
-        timestamp = new Date(createdAt.replace(' ', 'T')).getTime();
-      } else {
-        timestamp = new Date(createdAt).getTime();
-      }
-      
-      const message = {
-        id: msg.message_id,
-        senderUsername: msg.sender_username,
-        encryptedData: msg.encrypted_data,
-        iv: msg.iv,
-        timestamp: timestamp,
-      };
-
-      if (msg.attachment_id) {
-        // Helper to infer mimetype from filename (prefer original name)
-        const nameToCheck = msg.original_name || msg.filename;
-        const ext = nameToCheck.split('.').pop().toLowerCase();
-        const mimeMap = {
-          'jpg': 'image/jpeg',
-          'jpeg': 'image/jpeg',
-          'png': 'image/png',
-          'gif': 'image/gif',
-          'webp': 'image/webp'
-        };
-        const inferredMime = mimeMap[ext];
-
-        message.attachment = {
-          id: msg.attachment_id,
-          filename: msg.filename,
-          url: urlSigner.sign(`/api/files/${msg.attachment_id}`),
-          // Use original type, or inferred type, or stored mimetype
-          mimetype: msg.original_type || inferredMime || msg.mimetype,
-          size: msg.size,
-          encrypted: !!msg.encrypted,
-          iv: msg.attachment_iv,
-          metadata: msg.metadata
-        };
-
-        // If encrypted, use original type for display if available
-        // (Handled above in mimetype assignment)
-      }
-      return message;
-    });
+    const encryptedMessages = dbMessages.map(mapRoomMessageRow);
 
     socket.emit('room-data', {
       members: memberList,
@@ -362,18 +295,7 @@ function createRoomHandler(io, socket, state) {
     // Notify others
     io.to(roomId).emit('member-left', { username: user.username });
 
-    // Get updated members list from database
-    const dbMembers = db.getRoomMembers(roomId);
-    const memberKeys = {};
-    const memberList = [];
-
-    for (const member of dbMembers) {
-      memberList.push(member.username);
-      const memberUser = db.getUserByUsername(member.username);
-      if (memberUser?.public_key) {
-        memberKeys[member.username] = memberUser.public_key;
-      }
-    }
+    const { members: memberList, memberKeys } = getRoomMemberSnapshot(roomId);
 
     io.to(roomId).emit('members-update', {
       members: memberList,

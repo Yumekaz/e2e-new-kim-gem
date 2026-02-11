@@ -25,6 +25,18 @@ interface EncryptedUploadData {
 }
 
 class FileService {
+  private extractFileId(url: string): number | null {
+    const match = url.match(/\/api\/files\/(\d+)/);
+    if (!match) return null;
+    const id = parseInt(match[1], 10);
+    return Number.isFinite(id) ? id : null;
+  }
+
+  private async refreshSignedUrl(fileId: number): Promise<string> {
+    const response = await authService.authenticatedFetch(`${API_BASE}/${fileId}/url`);
+    const data = await response.json();
+    return data.attachment.url;
+  }
   /**
    * Request a legacy upload/download token via socket
    */
@@ -152,6 +164,23 @@ class FileService {
       }
     }
 
+    // Expired signature or stale link: refresh URL once and retry.
+    if (response.status === 403) {
+      const fileId = this.extractFileId(url);
+      if (fileId) {
+        try {
+          const refreshedUrl = await this.refreshSignedUrl(fileId);
+          response = await fetch(refreshedUrl, {
+            headers: {
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+          });
+        } catch (e) {
+          console.warn('Signed URL refresh failed:', e);
+        }
+      }
+    }
+
     if (!response.ok) {
       let errorMessage = `Failed to download file (${response.status} ${response.statusText})`;
 
@@ -181,7 +210,7 @@ class FileService {
    * Get file metadata
    */
   async getFile(fileId: number): Promise<{ attachment: Attachment }> {
-    const response = await authService.authenticatedFetch(`${API_BASE}/${fileId}`);
+    const response = await authService.authenticatedFetch(`${API_BASE}/${fileId}/url`);
     return response.json();
   }
 

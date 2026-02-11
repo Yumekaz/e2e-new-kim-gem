@@ -5,7 +5,8 @@
 
 const roomService = require('../services/roomService');
 const config = require('../config');
-const urlSigner = require('../utils/urlSigner');
+const { AuthorizationError } = require('../utils/errors');
+const { mapAttachment } = require('../services/socketDataService');
 
 class RoomController {
   /**
@@ -62,7 +63,7 @@ class RoomController {
       
       // Check if user is a member
       if (!roomService.isMember(roomId, req.user.username)) {
-        return res.status(403).json({ error: 'Not a room member' });
+        throw new AuthorizationError('Not a room member');
       }
 
       const members = roomService.getMembers(roomId);
@@ -135,13 +136,7 @@ class RoomController {
           iv: m.iv,
           state: m.state,
           createdAt: m.created_at,
-          attachment: m.attachment_id ? {
-            id: m.attachment_id,
-            filename: m.filename,
-            url: urlSigner.sign(`/api/files/${m.attachment_id}`),
-            mimetype: m.mimetype,
-            size: m.size,
-          } : null,
+          attachment: m.attachment_id ? mapAttachment(m) : null,
         })),
         pagination,
       });
