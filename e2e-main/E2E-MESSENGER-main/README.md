@@ -26,6 +26,8 @@ A production-ready, real-time messaging application with **true end-to-end encry
 ### 🔒 Advanced Security
 - **End-to-End Encryption** - AES-256-GCM + ECDH P-256 key exchange
 - **Secure File Sharing** - E2E encrypted file uploads (Images, PDFs)
+- **Signed File URLs** - Time-limited, HMAC-signed download links
+- **Security Headers** - Helmet.js with strict CSP
 - **Zero-Knowledge** - Server stores only encrypted blobs
 - **JWT Authentication** - Access tokens (15min) + refresh tokens (7 days) with rotation
 - **Ephemeral Mode** - All data deleted when room owner leaves
@@ -40,6 +42,7 @@ A production-ready, real-time messaging application with **true end-to-end encry
 - **TypeScript** - Full type safety on frontend
 - **Comprehensive Testing** - 95+ Unit (Jest) and E2E (Playwright) tests
 - **Dual Server Modes** - Enhanced (Auth) and Legacy (Simple) servers
+- **CI Pipeline** - GitHub Actions workflow for install, build, and tests
 
 ---
 
@@ -141,7 +144,7 @@ e2e-messenger/
 ---
 
 ## 🔮 Future Roadmap
-1. **Message Pagination** - Load older messages on scroll
+1. **Client-Side Pagination UX** - Infinite scroll/load older messages on demand
 2. **Read Receipts** - Show who has read messages
 3. **Push Notifications** - Web Push API for mobile
 4. **Desktop App** - Electron wrapper
