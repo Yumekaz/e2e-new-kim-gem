@@ -82,16 +82,13 @@ function MessageBubble({
             </div>
           )}
           
-          <div className={`flex items-center gap-1 mt-1 ${isOwn ? 'justify-end' : 'justify-start'}`}>
-            <span className={`text-[10px] ${isOwn ? 'text-indigo-200' : 'text-slate-500'}`}>
-              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </span>
-            {isOwn && msg.decrypted && (
+          {isOwn && msg.decrypted && (
+            <div className="flex items-center gap-1 mt-1 justify-end">
               <svg className="w-3 h-3 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
@@ -131,6 +128,14 @@ function DeleteMenu({
   onCancel: () => void;
   position: { x: number; y: number };
 }): JSX.Element {
+  // Calculate adjusted position to keep menu on screen
+  const menuWidth = 200;
+  const menuHeight = 140;
+  const padding = 10;
+  
+  const adjustedX = Math.min(position.x, window.innerWidth - menuWidth - padding);
+  const adjustedY = Math.min(position.y, window.innerHeight - menuHeight - padding);
+  
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -138,9 +143,9 @@ function DeleteMenu({
       exit={{ opacity: 0, scale: 0.95 }}
       style={{ 
         position: 'fixed',
-        left: position.x,
-        top: position.y,
-        zIndex: 100
+        left: Math.max(padding, adjustedX),
+        top: Math.max(padding, adjustedY),
+        zIndex: 9999
       }}
       className="bg-slate-900 border border-slate-700 rounded-xl shadow-2xl overflow-hidden min-w-[180px]"
     >
@@ -608,13 +613,23 @@ function RoomPage({
       {/* Delete Menu */}
       <AnimatePresence>
         {deleteMenu && (
-          <DeleteMenu
-            messageId={deleteMenu.messageId}
-            position={deleteMenu.position}
-            onDeleteForEveryone={() => handleDeleteForEveryone(deleteMenu.messageId)}
-            onDeleteForMe={() => handleDeleteForMe(deleteMenu.messageId)}
-            onCancel={() => setDeleteMenu(null)}
-          />
+          <>
+            {/* Backdrop to close on click outside */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[9998]"
+              onClick={() => setDeleteMenu(null)}
+            />
+            <DeleteMenu
+              messageId={deleteMenu.messageId}
+              position={deleteMenu.position}
+              onDeleteForEveryone={() => handleDeleteForEveryone(deleteMenu.messageId)}
+              onDeleteForMe={() => handleDeleteForMe(deleteMenu.messageId)}
+              onCancel={() => setDeleteMenu(null)}
+            />
+          </>
         )}
       </AnimatePresence>
 

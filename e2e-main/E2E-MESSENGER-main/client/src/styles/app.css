@@ -95,7 +95,7 @@
    TOAST NOTIFICATIONS
    ============================================ */
 .toast {
-  @apply fixed bottom-6 right-6 px-4 py-3 rounded-xl flex items-center gap-3 z-50 shadow-2xl border;
+  @apply px-4 py-3 rounded-xl flex items-center gap-3 shadow-2xl border min-w-[200px];
 }
 
 .toast-success {

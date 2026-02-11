@@ -445,6 +445,7 @@ function App(): JSX.Element {
             initial={{ opacity: 0, y: 50, x: 20 }}
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, y: 20, x: 20 }}
+            className="fixed bottom-4 right-4 z-[9999]"
           >
             <Toast message={toast.message} type={toast.type} />
           </motion.div>
