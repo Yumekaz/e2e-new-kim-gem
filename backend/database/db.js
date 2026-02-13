@@ -27,6 +27,7 @@ const MessageState = {
 let db = null;
 let SQL = null;
 let saveInterval = null;
+let transactionDepth = 0;
 
 /**
  * Save database to file
@@ -163,7 +164,7 @@ function runQuery(sql, params = []) {
   const changes = db.getRowsModified();
 
   // Only save if changes were made
-  if (changes > 0) {
+  if (changes > 0 && transactionDepth === 0) {
     saveDatabase();
   }
 
@@ -172,15 +173,20 @@ function runQuery(sql, params = []) {
 }
 
 function runInTransaction(operation) {
-  runQuery('BEGIN TRANSACTION');
+  db.run('BEGIN TRANSACTION');
+  transactionDepth++;
   try {
     const result = operation();
-    runQuery('COMMIT');
+    db.run('COMMIT');
+    transactionDepth = Math.max(0, transactionDepth - 1);
+    saveDatabase();
     return result;
   } catch (error) {
     try {
-      runQuery('ROLLBACK');
+      db.run('ROLLBACK');
+      transactionDepth = Math.max(0, transactionDepth - 1);
     } catch (rollbackError) {
+      transactionDepth = 0;
       logger.error('Database rollback failed', { error: rollbackError.message });
     }
     throw error;

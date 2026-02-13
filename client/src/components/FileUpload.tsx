@@ -10,12 +10,14 @@ function FileUpload({ roomId, onFileUploaded, disabled = false, encryptFile }: E
   const [uploading, setUploading] = useState<boolean>(false);
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
+  const [error, setError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (file: File): Promise<void> => {
     if (!file || uploading) return;
 
     try {
+      setError('');
       // Validate file
       fileService.validateFile(file);
 
@@ -38,7 +40,7 @@ function FileUpload({ roomId, onFileUploaded, disabled = false, encryptFile }: E
       // Notify parent
       onFileUploaded(result.attachment);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Upload failed');
+      setError(error instanceof Error ? error.message : 'Upload failed');
     } finally {
       setUploading(false);
       setProgress(0);
@@ -86,13 +88,14 @@ function FileUpload({ roomId, onFileUploaded, disabled = false, encryptFile }: E
   };
 
   return (
-    <div
-      className={`file-upload ${dragOver ? 'drag-over' : ''} ${uploading ? 'uploading' : ''}`}
-      onDragOver={handleDragOver}
-      onDragLeave={handleDragLeave}
-      onDrop={handleDrop}
-    >
-      <input
+    <div>
+      <div
+        className={`file-upload ${dragOver ? 'drag-over' : ''} ${uploading ? 'uploading' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
+        <input
         ref={fileInputRef}
         type="file"
         onChange={handleInputChange}
@@ -100,18 +103,20 @@ function FileUpload({ roomId, onFileUploaded, disabled = false, encryptFile }: E
         style={{ display: 'none' }}
         accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,text/plain,.doc,.docx"
         aria-label="Upload file"
-      />
+        data-testid="file-input"
+        />
       
-      <button
+        <button
         type="button"
         className="file-upload-btn"
         onClick={handleClick}
         disabled={uploading || disabled}
         title={encryptFile ? "Attach encrypted file" : "Attach file"}
         aria-label={encryptFile ? "Attach encrypted file" : "Attach file"}
-      >
+        data-testid="file-upload-button"
+        >
         {uploading ? (
-          <div className="upload-progress">
+          <div className="upload-progress" data-testid="file-upload-progress">
             <span className="loading-spinner small"></span>
             <span className="progress-text">{progress}%</span>
           </div>
@@ -126,9 +131,13 @@ function FileUpload({ roomId, onFileUploaded, disabled = false, encryptFile }: E
             />
           </svg>
         )}
-      </button>
-      {encryptFile && !uploading && (
-        <span className="encryption-badge" title="Files are end-to-end encrypted">🔒</span>
+        </button>
+        {encryptFile && !uploading && (
+          <span className="encryption-badge" title="Files are end-to-end encrypted">🔒</span>
+        )}
+      </div>
+      {error && (
+        <p className="text-xs text-red-400 mt-1" data-testid="file-upload-error">{error}</p>
       )}
     </div>
   );

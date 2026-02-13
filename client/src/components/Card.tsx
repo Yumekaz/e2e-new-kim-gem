@@ -23,7 +23,7 @@ export function Card({ children, className = '', hover = false, onClick }: CardP
   );
 }
 
-interface FeatureCardProps {
+interface FeatureCardProps extends React.HTMLAttributes<HTMLDivElement> {
   icon: React.ReactNode;
   title: string;
   description: string;
@@ -45,10 +45,11 @@ const iconColors = {
   orange: 'bg-orange-500/20 text-orange-400',
 };
 
-export function FeatureCard({ icon, title, description, onClick, color = 'indigo' }: FeatureCardProps): JSX.Element {
+export function FeatureCard({ icon, title, description, onClick, color = 'indigo', ...props }: FeatureCardProps): JSX.Element {
   return (
     <div 
       onClick={onClick}
+      {...props}
       className={`
         group relative p-6 rounded-2xl bg-gradient-to-br ${colorClasses[color]}
         border border-slate-800/50 hover:border-slate-700/50

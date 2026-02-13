@@ -19,6 +19,7 @@ function JoinRequestModal({ requests, onApprove, onDeny }: JoinRequestModalProps
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       className="fixed bottom-4 right-4 left-4 sm:left-auto sm:w-full sm:max-w-sm bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl z-[100] overflow-hidden"
+      data-testid="join-request-modal"
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-slate-800/50 border-b border-slate-800">
@@ -53,6 +54,7 @@ function JoinRequestModal({ requests, onApprove, onDeny }: JoinRequestModalProps
                 onClick={() => handleApprove(request)}
                 className="w-8 h-8 flex items-center justify-center bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg transition-colors"
                 title="Approve"
+                data-testid={`approve-join-${request.requestId}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -62,6 +64,7 @@ function JoinRequestModal({ requests, onApprove, onDeny }: JoinRequestModalProps
                 onClick={() => handleDeny(request)}
                 className="w-8 h-8 flex items-center justify-center bg-slate-700 hover:bg-red-500 hover:text-white text-slate-400 rounded-lg transition-colors"
                 title="Deny"
+                data-testid={`deny-join-${request.requestId}`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

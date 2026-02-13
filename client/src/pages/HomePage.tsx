@@ -128,7 +128,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
             </div>
           </div>
 
-          <Button variant="secondary" onClick={cancelWaiting}>
+          <Button variant="secondary" onClick={cancelWaiting} data-testid="join-cancel-waiting-button">
             Cancel Request
           </Button>
         </motion.div>
@@ -194,6 +194,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
             description="Start a private encrypted conversation and invite others with a secure room code."
             onClick={onCreateRoom}
             color="indigo"
+            data-testid="create-room-button"
           />
           
           <FeatureCard
@@ -202,6 +203,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
             description="Enter a 6-digit room code to join an existing encrypted conversation."
             onClick={() => setShowJoinForm(true)}
             color="green"
+            data-testid="open-join-room-modal-button"
           />
         </motion.div>
 
@@ -213,6 +215,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              data-testid="join-room-modal"
               onClick={() => setShowJoinForm(false)}
             >
               <motion.div
@@ -227,6 +230,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
                   <button 
                     onClick={() => setShowJoinForm(false)}
                     className="text-slate-400 hover:text-white transition-colors p-1"
+                    data-testid="join-room-modal-close-button"
                   >
                     <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                   </button>
@@ -246,6 +250,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
                         placeholder="XXXXXX"
                         className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 sm:py-4 text-center text-xl sm:text-2xl font-mono tracking-[0.3em] text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all uppercase"
                         autoFocus
+                        data-testid="join-room-code-input"
                       />
                       <div className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500">
                         {roomCode.length}/6
@@ -258,6 +263,7 @@ function HomePage({ username, onCreateRoom, onJoinRoom, joinDenied, onJoinDenied
                     fullWidth
                     size="lg"
                     disabled={roomCode.length !== 6}
+                    data-testid="join-room-submit-button"
                   >
                     Request to Join
                   </Button>

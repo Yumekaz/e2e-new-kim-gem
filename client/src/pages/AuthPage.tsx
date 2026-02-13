@@ -119,7 +119,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
         )}
       </AnimatePresence>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" data-testid="auth-form">
         <Input
           type="email"
           label="Email"
@@ -128,6 +128,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
           onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
           required
           autoComplete="email"
+          data-testid="auth-email-input"
           leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" /></svg>}
         />
 
@@ -143,6 +144,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
             pattern="^[a-zA-Z0-9_]+$"
             required
             autoComplete="username"
+            data-testid="auth-username-input"
             leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>}
           />
         )}
@@ -156,6 +158,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
           minLength={8}
           required
           autoComplete={isLogin ? 'current-password' : 'new-password'}
+          data-testid="auth-password-input"
           leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>}
         />
 
@@ -169,6 +172,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
             minLength={8}
             required
             autoComplete="new-password"
+            data-testid="auth-confirm-password-input"
             leftIcon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
           />
         )}
@@ -180,6 +184,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
           isLoading={loading}
           disabled={!encryptionReady}
           className="mt-2"
+          data-testid="auth-submit-button"
         >
           {encryptionReady 
             ? (isLogin ? 'Sign In' : 'Create Account')
@@ -195,6 +200,7 @@ function AuthPage({ onAuth, encryptionReady }: AuthPageProps): JSX.Element {
             type="button"
             onClick={toggleMode}
             className="ml-1 text-indigo-400 hover:text-indigo-300 font-medium transition-colors"
+            data-testid="auth-toggle-mode"
           >
             {isLogin ? 'Sign up' : 'Sign in'}
           </button>

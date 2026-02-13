@@ -503,7 +503,7 @@ function RoomPage({
     <div className="h-screen flex flex-col bg-slate-950">
       {/* Header */}
       <header className="h-14 sm:h-16 border-b border-slate-800/50 bg-slate-950/80 backdrop-blur-xl flex items-center px-3 sm:px-4 gap-2 sm:gap-4 z-10">
-        <IconButton onClick={() => setShowLeaveConfirm(true)} className="!w-9 !h-9 sm:!w-10 sm:!h-10">
+        <IconButton onClick={() => setShowLeaveConfirm(true)} className="!w-9 !h-9 sm:!w-10 sm:!h-10" data-testid="room-leave-open-button">
           <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -527,14 +527,14 @@ function RoomPage({
 
         <div className="flex items-center gap-0.5 sm:gap-1">
           {/* Info Button */}
-          <IconButton onClick={() => setShowRoomInfo(true)} variant="ghost" title="Room Info" className="!w-9 !h-9 sm:!w-10 sm:!h-10">
+          <IconButton onClick={() => setShowRoomInfo(true)} variant="ghost" title="Room Info" className="!w-9 !h-9 sm:!w-10 sm:!h-10" data-testid="room-info-open-button">
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </IconButton>
           
           {/* Members Button */}
-          <IconButton onClick={() => setShowMembers(true)} variant="ghost" title="Members" className="!w-9 !h-9 sm:!w-10 sm:!h-10">
+          <IconButton onClick={() => setShowMembers(true)} variant="ghost" title="Members" className="!w-9 !h-9 sm:!w-10 sm:!h-10" data-testid="room-members-open-button">
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -546,6 +546,7 @@ function RoomPage({
       <div 
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto p-4 space-y-2"
+        data-testid="room-message-list"
       >
         {messages.length === 0 ? (
           <NoMessagesState roomName={`Room ${roomCode}`} />
@@ -610,6 +611,7 @@ function RoomPage({
               onKeyDown={handleTyping}
               placeholder="Type a message..."
               className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+              data-testid="room-message-input"
             />
           </div>
           
@@ -617,6 +619,7 @@ function RoomPage({
             type="submit"
             disabled={!inputText.trim()}
             className="!px-3 sm:!px-4 !py-2 sm:!py-2.5 flex-shrink-0"
+            data-testid="room-send-button"
           >
             <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
@@ -665,10 +668,11 @@ function RoomPage({
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed right-0 top-0 bottom-0 w-full sm:w-80 bg-slate-900 border-l border-slate-800 z-50"
+              data-testid="room-members-panel"
             >
               <div className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-800 h-14 sm:h-16">
                 <h2 className="font-semibold text-white text-sm sm:text-base">Members ({members.length})</h2>
-                <IconButton onClick={() => setShowMembers(false)} variant="ghost" className="!w-9 !h-9">
+                <IconButton onClick={() => setShowMembers(false)} variant="ghost" className="!w-9 !h-9" data-testid="room-members-close-button">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -707,6 +711,7 @@ function RoomPage({
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowRoomInfo(false)}
+            data-testid="room-info-modal"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -718,7 +723,7 @@ function RoomPage({
               {/* Modal Header */}
               <div className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-900/50">
                 <h3 className="text-lg font-semibold text-white">Room Information</h3>
-                <IconButton onClick={() => setShowRoomInfo(false)} variant="ghost">
+                <IconButton onClick={() => setShowRoomInfo(false)} variant="ghost" data-testid="room-info-close-button">
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
@@ -731,15 +736,16 @@ function RoomPage({
                   <label className="block text-xs font-medium text-slate-500 uppercase tracking-wider mb-2">Room Code</label>
                   <div className="flex items-center gap-2">
                     <code className="flex-1 bg-slate-800 px-3 py-2 rounded-lg text-indigo-400 font-mono text-lg tracking-wider">{roomCode}</code>
-                    <Button 
-                      variant="secondary" 
-                      size="sm"
-                      onClick={() => {
-                        navigator.clipboard.writeText(roomCode);
-                      }}
-                    >
-                      Copy
-                    </Button>
+                  <Button 
+                    variant="secondary" 
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(roomCode);
+                    }}
+                    data-testid="room-code-copy-button"
+                  >
+                    Copy
+                  </Button>
                   </div>
                 </div>
 
@@ -804,6 +810,7 @@ function RoomPage({
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowLeaveConfirm(false)}
+            data-testid="room-leave-modal"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -842,6 +849,7 @@ function RoomPage({
                     variant="secondary" 
                     fullWidth
                     onClick={() => setShowLeaveConfirm(false)}
+                    data-testid="room-leave-cancel-button"
                   >
                     Cancel
                   </Button>
@@ -852,6 +860,7 @@ function RoomPage({
                       setShowLeaveConfirm(false);
                       onLeave();
                     }}
+                    data-testid="room-leave-confirm-button"
                   >
                     {isOwner ? 'Close Room' : 'Leave'}
                   </Button>

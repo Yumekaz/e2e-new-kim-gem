@@ -347,7 +347,7 @@ function App(): JSX.Element {
     <div className="app">
       {/* Encryption Status Indicator - Hidden on room page */}
       {currentPage !== 'room' && (
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur border border-slate-800">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur border border-slate-800" data-testid="encryption-indicator">
           <span className={`w-2 h-2 rounded-full ${encryptionStatus === 'ready' ? 'bg-emerald-500' : 'bg-amber-500 animate-pulse'}`} />
           <span className="text-xs font-medium text-slate-400">
             {encryptionStatus === 'ready' ? 'Encrypted' : 'Initializing...'}
@@ -357,6 +357,7 @@ function App(): JSX.Element {
               onClick={handleLogout}
               className="ml-2 p-1 hover:bg-slate-800 rounded-lg transition-colors"
               title="Logout"
+              data-testid="logout-button"
             >
               <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

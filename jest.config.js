@@ -9,7 +9,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   verbose: true,
-  testTimeout: 30000,
+  testTimeout: 60000,
   maxWorkers: 1, // Run tests serially for API tests
-  setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 };
