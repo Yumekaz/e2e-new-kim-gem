@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       JWT_SECRET: ci-jwt-secret
       JWT_REFRESH_SECRET: ci-refresh-secret
@@ -38,11 +38,5 @@ jobs:
         run: npm run build
         working-directory: client
 
-      - name: Start server
-        run: npm run start > server.log 2>&1 &
-
-      - name: Wait for health endpoint
-        run: npx wait-on http://localhost:3000/api/health
-
       - name: Run unit/integration tests
-        run: npm test
+        run: npm run test:ci

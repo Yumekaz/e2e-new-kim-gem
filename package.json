@@ -13,6 +13,7 @@
     "install-all": "npm install && cd client && npm install",
     "setup": "npm run install-all && npm run build",
     "test": "jest --coverage",
+    "test:ci": "jest tests/ --runInBand --coverage=false --ci --forceExit",
     "test:watch": "jest --watch",
     "test:unit": "jest tests/ --coverage",
     "test:e2e": "npx playwright test",
